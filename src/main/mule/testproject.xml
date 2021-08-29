@@ -1,14 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="bde25f99-3fca-4443-ac45-95e04e058664" >
 		<http:listener-connection host="0.0.0.0" port="8081" />
 	</http:listener-config>
+	<file:config name="File_Config" doc:name="File Config" doc:id="95e697d6-9327-4f24-93a5-1e10ca64ae8b" >
+		<file:connection workingDir="F:\Workspace-Anypoint\CSV_TestFile"/>
+	</file:config>
+	<file:config name="File_Config1" doc:name="File Config" doc:id="d66cae1a-5aee-4783-bfa8-6eb3ea324075" >
+		<file:connection workingDir="F:\Workspace-Anypoint\Json_Testile" />
+	</file:config>
 	<flow name="testprojectFlow" doc:id="938836b9-6c81-428f-9527-5902cc71a21e" >
 		<http:listener doc:name="Listener" doc:id="06e9b0f6-0e16-41f8-88ce-5ced2931cf71" config-ref="HTTP_Listener_config" path="/test"/>
-		<logger level="INFO" doc:name="Logger" doc:id="dfa032ba-8e87-402d-8d21-7858da04379e" message="Just Another Day!"/>
+		<file:read doc:name="Read" doc:id="a86a85ab-c657-4c73-8fc9-4a716da61bcb" path="F:\Workspace-Anypoint\testproject\src\main\resources\CSV_File\passengerRecords.csv" outputMimeType="application/csv"/>
+		<logger level="INFO" doc:name="Logger" doc:id="dfa032ba-8e87-402d-8d21-7858da04379e" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="fbe779be-7290-4695-9026-01643b4abe4c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var data = payload map {
+	"First Name" : $."First Name" as String,
+	PNR: $.PNR
+}
+---
+payload.."Home Country"]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="Write" doc:id="c225cd8f-d690-45e5-b195-d998b21a6f5e" path="F:\Workspace-Anypoint\testproject\src\main\resources\JSON_File\converted_file"/>
 	</flow>
 </mule>

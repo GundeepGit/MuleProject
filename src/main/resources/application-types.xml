@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="csv_data" format="csv">
+      <types:shape format="weave" example="CSV_File/passengerRecords.csv"><![CDATA[%dw 2.0
+
+type csv_data = Array<{|  "First Name": String,   "Last Name": String,   "Flight Code": String,   PNR: String,   "Passenger Phone Number": String,   "Home Country": String|}> {"isQuotedString": "false",
+"header": "true",
+"headerLineNumber": "0"}
+
+]]></types:shape>
+      <types:properties>
+        <types:property name="headerLineNumber" value="0"/>
+        <types:property name="header" value="true"/>
+        <types:property name="isQuotedString" value="false"/>
+      </types:properties>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#fbe779be-7290-4695-9026-01643b4abe4c">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="csv_data"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+</types:mule>
